@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>藝教大樓演藝廳 專屬座位認捐</title>
+  <title>臺中二中藝教大樓演藝廳藝文發展永續基金計劃</title>
   
   <!-- 引入 React 與 Babel (讓瀏覽器能直接執行 React 程式碼) -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -38,6 +38,9 @@
       const auctionSeats = [
         '1-1', '2-2', '3-3', '5-5', '6-6', '7-7', '8-8', '9-9', '10-10', '11-11', '12-12'
       ];
+
+      // 定義保留不開放的座位 (1-2 到 1-18)
+      const lockedSeats = Array.from({length: 17}, (_, i) => `1-${i+2}`);
 
       // 狀態管理：記錄已認捐的座位
       const [takenSeats, setTakenSeats] = useState([]);
@@ -100,7 +103,7 @@
 
       // 處理點擊座位
       const handleSeatClick = (seatId) => {
-        if (takenSeats.includes(seatId)) return;
+        if (takenSeats.includes(seatId) || lockedSeats.includes(seatId)) return;
         const isAuction = auctionSeats.includes(seatId);
         setSelectedSeat({ id: seatId, isAuction });
       };
@@ -122,7 +125,8 @@
       const renderSeat = (row, col) => {
         const seatId = `${row}-${col}`;
         const isAuction = auctionSeats.includes(seatId);
-        const isTaken = takenSeats.includes(seatId);
+        const isLocked = lockedSeats.includes(seatId);
+        const isTaken = takenSeats.includes(seatId) || isLocked;
 
         let baseClass = "relative w-10 h-8 md:w-12 md:h-10 border rounded flex items-center justify-center text-xs md:text-sm font-medium transition-all duration-200 shadow-sm ";
         let colorClass = "";
@@ -142,7 +146,7 @@
             key={seatId} 
             className={baseClass + colorClass}
             onClick={() => handleSeatClick(seatId)}
-            title={isTaken ? `座位 ${seatId} 已被認捐` : `選擇座位 ${seatId}`}
+            title={isLocked ? `座位 ${seatId} 不開放認捐` : (isTaken ? `座位 ${seatId} 已被認捐` : `選擇座位 ${seatId}`)}
           >
             {isAuction && !isTaken && <IconStar size={12} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" />}
             {content}
@@ -154,9 +158,9 @@
         <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
           <header className="bg-gradient-to-r from-slate-900 via-blue-900 to-teal-900 text-white py-12 px-4 shadow-lg">
             <div className="max-w-5xl mx-auto text-center">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4 tracking-widest drop-shadow-md">藝教大樓演藝廳 專屬座位認捐</h1>
-              <p className="text-blue-100 max-w-2xl mx-auto leading-relaxed drop-shadow-sm text-lg">
-                為挹注演藝廳長遠發展與設備維護，邀請您認捐專屬座位。認捐者將名列大廳「藝席之地」芳名錄藝術牆。
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 tracking-widest drop-shadow-md">臺中二中藝教大樓演藝廳<br className="md:hidden" />藝文發展永續基金計劃</h1>
+              <p className="text-blue-100 max-w-2xl mx-auto leading-relaxed drop-shadow-sm text-xl md:text-2xl font-medium">
+                「鷹揚二中 藝席之地」榮譽冠名方案
               </p>
             </div>
           </header>
@@ -177,7 +181,7 @@
                 <div className="w-6 h-6 bg-slate-200 border border-slate-300 rounded flex items-center justify-center shadow-sm">
                   <IconCheck size={14} className="text-slate-500" />
                 </div>
-                <span className="text-slate-700">已被認捐</span>
+                <span className="text-slate-700">已認捐 / 保留</span>
               </div>
             </div>
 

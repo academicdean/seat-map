@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>臺中二中藝教大樓演藝廳藝文發展永續基金計劃</title>
   
-  <!-- 引入 React 與 Babel (讓瀏覽器能直接執行 React 程式碼) -->
+  <!-- 引入 React 與 Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- 引入 Tailwind CSS (處理網頁樣式) -->
+  <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
     );
     
-    // 新增流程說明專用圖示
+    // 流程說明專用圖示
     const IconMousePointerClick = ({ className, size=24 }) => (
       <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg>
     );
@@ -54,24 +54,21 @@
     );
 
     const App = () => {
-      // 定義特殊競標座位
-      const auctionSeats = [
-        '1-1', '2-2', '3-3', '5-5', '6-6', '7-7', '8-8', '9-9', '10-10', '11-11', '12-12'
-      ];
-
-      // 定義保留不開放的座位 (1-2 到 1-18)
+      // 基本常數
+      const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfz-ho98e2HvLFQAvWfxQnFS34PIN6YeB3YeOyez4uRUb8yvQ/viewform';
+      const SEAT_ENTRY_ID = 'entry.1502314330';
+      const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1rwnMlqNQyoYIwfZtWWR-HQcXmKApyzhhYs9Bt9TUj-jARCNXV_5NGIcxV5f_9UEyNUU7-F4zfLPn/pub?gid=179722670&single=true&output=csv';
+      
+      const auctionSeats = ['1-1', '2-2', '3-3', '5-5', '6-6', '7-7', '8-8', '9-9', '10-10', '11-11', '12-12'];
       const lockedSeats = Array.from({length: 17}, (_, i) => `1-${i+2}`);
 
       // 狀態管理
       const [takenSeats, setTakenSeats] = useState([]);
-      const [selectedSeats, setSelectedSeats] = useState([]); // 複選座位清單
+      const [selectedSeats, setSelectedSeats] = useState([]); 
       const [showConfirmModal, setShowConfirmModal] = useState(false);
-      const [auctionSeatInfo, setAuctionSeatInfo] = useState(null); // 點擊競標座位時顯示的單一視窗
+      const [auctionSeatInfo, setAuctionSeatInfo] = useState(null);
 
-      // Google 試算表 CSV 連結
-      const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1rwnMlqNQyoYIwfZtWWR-HQcXmKApyzhhYs9Bt9TUj-jARCNXV_5NGIcxV5f_9UEyNUU7-F4zfLPn/pub?gid=179722670&single=true&output=csv';
-
-      // 自動讀取 Google 試算表資料
+      // 自動讀取已認捐資料
       useEffect(() => {
         if (!GOOGLE_SHEET_CSV_URL) return;
         const fetchData = async () => {
@@ -87,39 +84,30 @@
               }
             }
             setTakenSeats(prev => Array.from(new Set([...prev, ...foundSeats])));
-          } catch (error) {
-            console.error('讀取試算表發生錯誤:', error);
-          }
+          } catch (error) { console.error('讀取試算表錯誤:', error); }
         };
         fetchData();
         const intervalId = setInterval(fetchData, 15000);
         return () => clearInterval(intervalId);
       }, []);
 
-      // 產生座位表資料
-      const generateLayout = () => {
-        const layout = [];
+      const layout = useMemo(() => {
+        const rows = [];
         for (let r = 15; r >= 1; r--) {
           const leftCols = r === 1 ? [1, 2, 3, 4] : [1, 2, 3, 4, 5];
           const centerCols = r === 1 ? [5, 6, 7, 8, 9, 10, 11, 12, 13, 14] : [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
           const rightCols = r === 1 ? [15, 16, 17, 18] : [16, 17, 18, 19, 20];
-          layout.push({ row: r, left: leftCols, center: centerCols, right: rightCols });
+          rows.push({ row: r, left: leftCols, center: centerCols, right: rightCols });
         }
-        return layout;
-      };
-      const layout = useMemo(() => generateLayout(), []);
+        return rows;
+      }, []);
 
-      // 處理點擊座位
       const handleSeatClick = (seatId) => {
         if (takenSeats.includes(seatId) || lockedSeats.includes(seatId)) return;
-        
-        // 如果點擊的是競標座位，直接顯示說明視窗
         if (auctionSeats.includes(seatId)) {
           setAuctionSeatInfo(seatId);
           return;
         }
-
-        // 一般座位切換複選狀態
         if (selectedSeats.includes(seatId)) {
           setSelectedSeats(selectedSeats.filter(s => s !== seatId));
         } else {
@@ -127,19 +115,20 @@
         }
       };
 
-      // 確認認捐並導向表單
-      const handleConfirmDonation = () => {
-        if (selectedSeats.length > 0) {
-          const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfz-ho98e2HvLFQAvWfxQnFS34PIN6YeB3YeOyez4uRUb8yvQ/viewform';
-          const entryId = 'entry.1502314330';
-          // 將多個座位以逗號串接
-          const seatsString = selectedSeats.join(', ');
-          const prefilledUrl = `${baseUrl}?usp=pp_url&${entryId}=${encodeURIComponent(seatsString)}`;
-          
-          window.open(prefilledUrl, '_blank');
-          setSelectedSeats([]); // 送出後清空暫選清單
-          setShowConfirmModal(false);
-        }
+      // 前往表單（含選取座位）
+      const goToFormWithSeats = () => {
+        const seatsString = selectedSeats.join(', ');
+        const prefilledUrl = `${FORM_URL}?usp=pp_url&${SEAT_ENTRY_ID}=${encodeURIComponent(seatsString)}`;
+        window.open(prefilledUrl, '_blank');
+        setSelectedSeats([]); 
+        setShowConfirmModal(false);
+      };
+
+      // 前往表單（不含選取座位）
+      const goToFormDirectly = () => {
+        window.open(FORM_URL, '_blank');
+        setSelectedSeats([]); 
+        setShowConfirmModal(false);
       };
 
       const renderSeat = (row, col) => {
@@ -165,12 +154,8 @@
         }
 
         return (
-          <div 
-            key={seatId} 
-            className={baseClass + colorClass}
-            onClick={() => handleSeatClick(seatId)}
-            title={isLocked ? `座位 ${seatId} 不開放認捐` : (isTaken ? `座位 ${seatId} 已被認捐` : `選擇座位 ${seatId}`)}
-          >
+          <div key={seatId} className={baseClass + colorClass} onClick={() => handleSeatClick(seatId)}
+            title={isLocked ? `座位 ${seatId} 不開放認捐` : (isTaken ? `座位 ${seatId} 已被認捐` : `選擇座位 ${seatId}`)}>
             {isAuction && !isTaken && <IconStar size={12} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" />}
             {content}
           </div>
@@ -182,14 +167,12 @@
           <header className="bg-gradient-to-r from-slate-900 via-blue-900 to-teal-900 text-white py-12 px-4 shadow-lg">
             <div className="max-w-5xl mx-auto text-center">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 tracking-widest drop-shadow-md">臺中二中藝教大樓演藝廳<br className="md:hidden" />藝文發展永續基金計劃</h1>
-              <p className="text-blue-100 max-w-2xl mx-auto leading-relaxed drop-shadow-sm text-xl md:text-2xl font-medium">
-                「鷹揚二中 藝席之地」榮譽冠名方案
-              </p>
+              <p className="text-blue-100 max-w-2xl mx-auto leading-relaxed drop-shadow-sm text-xl md:text-2xl font-medium">「鷹揚二中 藝席之地」榮譽冠名方案</p>
             </div>
           </header>
 
           <main className="max-w-6xl mx-auto px-4 mt-10">
-            {/* 參與方式與流程說明區塊 */}
+            {/* 參與方式說明 */}
             <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200 mb-10 w-full max-w-5xl mx-auto">
               <h2 className="text-xl font-bold text-slate-800 mb-8 text-center tracking-wide flex items-center justify-center gap-2">
                 <span className="w-12 h-px bg-slate-300 hidden md:block"></span>
@@ -197,79 +180,56 @@
                 <span className="w-12 h-px bg-slate-300 hidden md:block"></span>
               </h2>
 
-              <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-stretch">
-                <div className="flex-1 w-full">
+              <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+                {/* 方案 A */}
+                <div className="flex-1 w-full bg-blue-50/30 p-6 rounded-2xl border border-blue-100">
                   <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-3 justify-center lg:justify-start">
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm shadow-sm">方案 A</span>
+                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">方案 A</span>
                     榮譽冠名認捐 (需選座位)
                   </h3>
-                  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="flex flex-col items-center text-center max-w-[140px]">
-                      <div className="w-12 h-12 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center mb-3 shadow-sm border border-blue-100"><IconMousePointerClick size={24} /></div>
-                      <h4 className="font-bold text-slate-800 mb-1 text-sm">1. 挑選座位</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">可複選多個藍色空位</p>
-                    </div>
-                    <IconArrowRight className="text-slate-300 hidden md:block flex-shrink-0" size={24} />
-                    <div className="text-slate-300 md:hidden flex-shrink-0">↓</div>
-                    <div className="flex flex-col items-center text-center max-w-[140px]">
-                      <div className="w-12 h-12 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center mb-3 shadow-sm border border-blue-100"><IconFileText size={24} /></div>
-                      <h4 className="font-bold text-slate-800 mb-1 text-sm">2. 填寫表單</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">確認後自動帶入座位</p>
-                    </div>
-                    <IconArrowRight className="text-slate-300 hidden md:block flex-shrink-0" size={24} />
-                    <div className="text-slate-300 md:hidden flex-shrink-0">↓</div>
-                    <div className="flex flex-col items-center text-center max-w-[140px]">
-                      <div className="w-12 h-12 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center mb-3 shadow-sm border border-blue-100"><IconCreditCard size={24} /></div>
-                      <h4 className="font-bold text-slate-800 mb-1 text-sm">3. 完成捐款</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">依說明完成匯款</p>
-                    </div>
-                    <IconArrowRight className="text-slate-300 hidden md:block flex-shrink-0" size={24} />
-                    <div className="text-slate-300 md:hidden flex-shrink-0">↓</div>
-                    <div className="flex flex-col items-center text-center max-w-[140px]">
-                      <div className="w-12 h-12 bg-amber-50 text-amber-700 rounded-full flex items-center justify-center mb-3 shadow-sm border border-amber-100"><IconAward size={24} /></div>
-                      <h4 className="font-bold text-slate-800 mb-1 text-sm">4. 榮譽冠名</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">列入芳名錄藝術牆</p>
-                    </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { icon: <IconMousePointerClick />, t: "挑選座位", d: "點擊下方藍色空位" },
+                      { icon: <IconFileText />, t: "確認選取", d: "點擊右下角按鈕確認" },
+                      { icon: <IconCreditCard />, t: "完成匯款", d: "依表單說明操作" },
+                      { icon: <IconAward />, t: "榮譽冠名", d: "名列大廳藝術牆" }
+                    ].map((step, idx) => (
+                      <div key={idx} className="flex flex-col items-center text-center">
+                        <div className="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mb-2 shadow-sm border border-blue-100">{step.icon}</div>
+                        <h4 className="font-bold text-slate-800 text-xs mb-1">{step.t}</h4>
+                        <p className="text-[10px] text-slate-500 leading-tight">{step.d}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="hidden lg:block w-px bg-slate-200"></div>
-                <div className="lg:w-64 w-full flex flex-col items-center text-center bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-inner">
-                   <h3 className="text-lg font-bold text-slate-700 mb-2 flex items-center gap-2">
-                     <span className="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-sm shadow-sm">方案 B</span>
+
+                {/* 分隔線 */}
+                <div className="hidden lg:flex items-center text-slate-300 font-bold">或</div>
+
+                {/* 方案 B */}
+                <div className="lg:w-72 w-full flex flex-col items-center text-center bg-emerald-50/30 p-6 rounded-2xl border border-emerald-100 shadow-inner">
+                   <h3 className="text-lg font-bold text-emerald-900 mb-4 flex items-center gap-2">
+                     <span className="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm">方案 B</span>
                      一般隨喜贊助
                    </h3>
-                   <p className="text-xs text-slate-500 mb-4 mt-1 leading-relaxed">不指定座位，歡迎直接掃碼填寫</p>
-                   <img src="QR code-演藝廳座椅冠名表單.jpg" alt="一般捐款表單 QR Code" className="w-32 h-32 mb-4 border border-slate-300 rounded-lg shadow-sm bg-white p-1" />
-                   <a href="https://docs.google.com/forms/d/e/1FAIpQLSfz-ho98e2HvLFQAvWfxQnFS34PIN6YeB3YeOyez4uRUb8yvQ/viewform" target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-sm rounded-xl transition-colors font-medium shadow-md hover:shadow-lg w-full flex justify-center items-center gap-2">
-                      <IconFileText size={16} /> 填寫捐款表單
-                   </a>
+                   <div className="flex flex-col items-center gap-3">
+                     <img src="QR code-演藝廳座椅冠名表單.jpg" alt="QR Code" className="w-28 h-28 border border-white rounded-lg shadow-sm bg-white p-1" />
+                     <p className="text-xs text-emerald-700 font-medium">不需指定座位，直接捐款</p>
+                     <button onClick={goToFormDirectly} className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm rounded-xl font-medium w-full shadow-sm transition-colors">直接填寫表單</button>
+                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-xl shadow-md border border-slate-200 flex flex-wrap gap-8 justify-center mb-10 text-sm md:text-base font-medium">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-blue-50 border border-blue-200 rounded shadow-sm"></div>
-                <span className="text-slate-700">一般認捐席 (NT$ 20,000/席)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-blue-600 border border-blue-700 rounded shadow-sm ring-1 ring-blue-300"></div>
-                <span className="text-slate-700 font-bold text-blue-700">您選取的座位</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-amber-100 border border-amber-400 rounded relative shadow-sm">
-                   <IconStar size={10} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" />
-                </div>
-                <span className="text-slate-700">尊榮競標席 (9/9 募款餐會)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-slate-200 border border-slate-300 rounded flex items-center justify-center shadow-sm">
-                  <IconCheck size={14} className="text-slate-500" />
-                </div>
-                <span className="text-slate-700">已認捐 / 保留</span>
-              </div>
+            {/* 座位圖例 */}
+            <div className="bg-white p-5 rounded-xl shadow-md border border-slate-200 flex flex-wrap gap-8 justify-center mb-10 text-sm font-medium">
+              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-blue-50 border border-blue-200 rounded"></div><span>一般認捐席</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-blue-600 border border-blue-700 rounded ring-1 ring-blue-300"></div><span className="text-blue-700">您選取的座位</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-amber-100 border border-amber-400 rounded relative"><IconStar size={10} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" /></div><span>尊榮競標席</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-slate-200 border border-slate-300 rounded flex items-center justify-center"><IconCheck size={14} className="text-slate-500" /></div><span>已認捐 / 保留</span></div>
             </div>
 
+            {/* 座位表 */}
             <div className="w-full overflow-x-auto pb-4">
               <div className="min-w-[800px] bg-white p-10 rounded-2xl shadow-lg border border-slate-200 mx-auto w-fit">
                 {layout.map((rowLayout) => (
@@ -288,82 +248,66 @@
             </div>
           </main>
 
-          {/* 複選浮動功能按鈕 */}
+          {/* 浮動按鈕 */}
           {selectedSeats.length > 0 && (
-            <div className="fixed bottom-8 right-8 z-40 animate-bounce-subtle">
-              <button 
-                onClick={() => setShowConfirmModal(true)}
-                className="bg-blue-700 hover:bg-blue-800 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95 group"
-              >
-                <div className="bg-white text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg group-hover:bg-blue-100">
-                  {selectedSeats.length}
-                </div>
-                <span className="font-bold tracking-wider text-lg">確認認捐座位</span>
+            <div className="fixed bottom-8 right-8 z-40">
+              <button onClick={() => setShowConfirmModal(true)} className="bg-blue-700 hover:bg-blue-800 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 transition-all transform hover:scale-105 active:scale-95 group">
+                <div className="bg-white text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg">{selectedSeats.length}</div>
+                <span className="font-bold text-lg">確認認捐座位</span>
                 <IconShoppingBag size={24} />
               </button>
             </div>
           )}
 
-          {/* 認捐確認視窗 (複選版) */}
+          {/* 確認視窗 */}
           {showConfirmModal && (
             <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
               <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
                 <div className="p-6 bg-blue-800 text-white flex justify-between items-start">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-1 tracking-wide">認捐明細確認</h3>
-                    <p className="text-sm opacity-90 font-medium">榮譽冠名認捐方案</p>
-                  </div>
+                  <div><h3 className="text-2xl font-bold mb-1 tracking-wide">認捐內容確認</h3><p className="text-sm opacity-90 font-medium">方案 A：榮譽冠名認捐</p></div>
                   <button onClick={() => setShowConfirmModal(false)} className="hover:bg-white/20 p-1 rounded-full"><IconX size={24} /></button>
                 </div>
                 <div className="p-6">
-                  <p className="text-slate-600 mb-4 font-medium">您已選取以下座位：</p>
+                  <p className="text-slate-600 mb-4 font-medium">您選取的座位：</p>
                   <div className="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-100">
-                    {selectedSeats.map(id => (
-                      <span key={id} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-bold text-sm border border-blue-200">
-                        座位 {id}
-                      </span>
-                    ))}
+                    {selectedSeats.map(id => <span key={id} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-bold text-sm border border-blue-200">座位 {id}</span>)}
                   </div>
                   <div className="space-y-2 border-t pt-4">
-                    <div className="flex justify-between text-lg">
-                      <span className="text-slate-500">認捐席次：</span>
-                      <span className="font-bold text-slate-800">{selectedSeats.length} 席</span>
-                    </div>
-                    <div className="flex justify-between text-xl border-b pb-4">
-                      <span className="text-slate-500">認捐總額：</span>
-                      <span className="font-bold text-blue-700">NT$ {(selectedSeats.length * 20000).toLocaleString()} 元</span>
-                    </div>
+                    <div className="flex justify-between text-lg"><span className="text-slate-500">認捐席次：</span><span className="font-bold text-slate-800">{selectedSeats.length} 席</span></div>
+                    <div className="flex justify-between text-xl border-b pb-4"><span className="text-slate-500">認捐總額：</span><span className="font-bold text-blue-700 text-2xl">NT$ {(selectedSeats.length * 20000).toLocaleString()} 元</span></div>
                   </div>
-                  <div className="mt-4 bg-blue-50 p-4 rounded-xl text-blue-900 border border-blue-100 text-sm leading-relaxed">
-                    認捐完成後，您的姓名將展示於大廳的「藝席之地」芳名錄藝術牆上。
+                  <div className="mt-4 bg-emerald-50 p-4 rounded-xl text-emerald-900 border border-emerald-100 text-xs leading-relaxed flex items-start gap-2">
+                    <IconInfo size={16} className="mt-0.5 shrink-0" />
+                    <span>點擊下方藍色按鈕，系統將自動填入您的座位號碼。</span>
                   </div>
                 </div>
-                <div className="p-5 bg-slate-50 border-t flex justify-end gap-3">
-                  <button onClick={() => setShowConfirmModal(false)} className="px-5 py-2.5 text-slate-600 hover:bg-slate-200 rounded-xl transition-colors font-medium">取消</button>
-                  <button onClick={handleConfirmDonation} className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl transition-colors font-medium flex items-center gap-2 shadow-md hover:shadow-lg">前往填寫表單</button>
+                <div className="p-5 bg-slate-50 border-t flex flex-col gap-3">
+                  <button onClick={goToFormWithSeats} className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2 shadow-md">
+                    <IconFileText size={20} /> 帶入座位並前往填寫表單
+                  </button>
+                  <div className="flex gap-3">
+                    <button onClick={goToFormDirectly} className="flex-1 px-4 py-2 bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 rounded-lg text-sm font-medium transition-colors">
+                      不指定座位，直接捐款
+                    </button>
+                    <button onClick={() => setShowConfirmModal(false)} className="px-4 py-2 text-slate-400 hover:bg-slate-200 rounded-lg text-sm font-medium">取消</button>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 單一競標座位說明視窗 */}
+          {/* 競標視窗 */}
           {auctionSeatInfo && (
             <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
               <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
                 <div className="p-6 bg-amber-600 text-white flex justify-between items-start">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-1 tracking-wide">座位 {auctionSeatInfo}</h3>
-                    <p className="text-sm opacity-90">✨ 專屬尊榮特殊席位</p>
-                  </div>
+                  <div><h3 className="text-2xl font-bold mb-1 tracking-wide">座位 {auctionSeatInfo}</h3><p className="text-sm opacity-90">✨ 專屬尊榮特殊席位</p></div>
                   <button onClick={() => setAuctionSeatInfo(null)} className="hover:bg-white/20 p-1 rounded-full"><IconX size={24} /></button>
                 </div>
                 <div className="p-6">
-                  <div className="bg-amber-50 text-amber-900 p-4 rounded-xl border border-amber-200 flex items-start gap-3 shadow-sm">
-                    <div className="mt-0.5 shrink-0"><IconInfo size={20} className="text-amber-600" /></div>
-                    <div>
-                      <p className="font-bold mb-1 text-amber-800">公開競標席次</p>
-                      <p className="text-sm leading-relaxed">本座位為保留之特殊尊榮座位，將於 <strong className="text-amber-700">115年9月9日(三)</strong> 舉行之募款餐會中現場開放公開競標。</p>
-                    </div>
+                  <div className="bg-amber-50 text-amber-900 p-4 rounded-xl border border-amber-200 flex items-start gap-3 shadow-sm text-sm leading-relaxed">
+                    <IconInfo size={20} className="text-amber-600 shrink-0" />
+                    <p>本座位為保留之特殊尊榮座位，將於 <strong className="text-amber-700">115年9月9日(三)</strong> 舉行之募款餐會中現場開放公開競標。</p>
                   </div>
                 </div>
                 <div className="p-5 bg-slate-50 border-t flex justify-end">
@@ -379,14 +323,5 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
-  <style>
-    @keyframes bounce-subtle {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    .animate-bounce-subtle {
-      animation: bounce-subtle 3s infinite ease-in-out;
-    }
-  </style>
 </body>
 </html>

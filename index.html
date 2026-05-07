@@ -180,7 +180,7 @@
             {/* 縮小的圖案區塊 (利用負邊距讓圖案稍微往上靠近文字) */}
             <div className="w-full flex justify-center relative z-0 mt-4 md:-mt-4 lg:-mt-8 px-4">
               <img 
-                src="演藝廳贊助網頁標頭.jpg" 
+                src="演藝廳贊助網頁標頭.png" 
                 alt="鷹揚二中 視覺圖" 
                 className="w-full max-w-2xl lg:max-w-3xl object-contain opacity-95"
               />
@@ -188,61 +188,65 @@
           </header>
 
           <main className="max-w-6xl mx-auto px-4 mt-6">
-            {/* 參與方式說明 */}
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200 mb-10 w-full max-w-5xl mx-auto">
-              <h2 className="text-xl font-bold text-slate-800 mb-8 text-center tracking-wide flex items-center justify-center gap-2">
-                <span className="w-12 h-px bg-slate-300 hidden md:block"></span>
+            {/* 參與方式說明 - 長輩友善放大版 */}
+            <div className="bg-white p-6 md:p-10 rounded-xl shadow-md border border-slate-200 mb-10 w-full max-w-5xl mx-auto">
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-10 text-center tracking-wide flex items-center justify-center gap-4">
+                <span className="w-16 h-px bg-slate-300 hidden md:block"></span>
                 參與方式與流程說明
-                <span className="w-12 h-px bg-slate-300 hidden md:block"></span>
+                <span className="w-16 h-px bg-slate-300 hidden md:block"></span>
               </h2>
 
               <div className="flex flex-col lg:flex-row gap-8 items-stretch">
                 {/* 方案 A */}
-                <div className="flex-1 w-full bg-blue-50/30 p-6 rounded-2xl border border-blue-100">
-                  <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-3 justify-center lg:justify-start">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">方案 A</span>
+                <div className="flex-1 w-full bg-blue-50/60 p-6 md:p-8 rounded-2xl border border-blue-200">
+                  <h3 className="text-xl md:text-2xl font-extrabold text-blue-900 mb-8 flex items-center gap-3 justify-center lg:justify-start">
+                    <span className="bg-blue-700 text-white px-4 py-1.5 rounded-full text-base shadow-sm">方案 A</span>
                     榮譽冠名認捐 (需選座位)
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {[
-                      { icon: <IconMousePointerClick />, t: "挑選座位", d: "點擊下方藍色空位" },
-                      { icon: <IconFileText />, t: "確認選取", d: "點擊右下角按鈕確認" },
-                      { icon: <IconCreditCard />, t: "完成匯款", d: "依表單說明操作" },
-                      { icon: <IconAward />, t: "榮譽冠名", d: "名列大廳藝術牆" }
+                      { icon: <IconMousePointerClick size={28} />, t: "挑選座位", d: "點擊下方藍色空位" },
+                      { icon: <IconFileText size={28} />, t: "確認選取", d: "點擊確認按鈕" },
+                      { icon: <IconCreditCard size={28} />, t: "完成匯款", d: "依表單說明操作" },
+                      { icon: <IconAward size={28} />, t: "榮譽冠名", d: "名列大廳藝術牆" }
                     ].map((step, idx) => (
                       <div key={idx} className="flex flex-col items-center text-center">
-                        <div className="w-10 h-10 bg-white text-blue-700 rounded-full flex items-center justify-center mb-2 shadow-sm border border-blue-100">{step.icon}</div>
-                        <h4 className="font-bold text-slate-800 text-xs mb-1">{step.t}</h4>
-                        <p className="text-[10px] text-slate-500 leading-tight">{step.d}</p>
+                        <div className="w-14 h-14 bg-white text-blue-700 rounded-full flex items-center justify-center mb-3 shadow-md border border-blue-200">
+                          {step.icon}
+                        </div>
+                        <h4 className="font-extrabold text-slate-900 text-base md:text-lg mb-1">{step.t}</h4>
+                        <p className="text-sm font-bold text-slate-700 leading-relaxed">{step.d}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* 分隔線 */}
-                <div className="hidden lg:flex items-center text-slate-300 font-bold">或</div>
+                <div className="hidden lg:flex items-center text-slate-400 font-black text-lg">或</div>
 
                 {/* 方案 B */}
-                <div className="lg:w-72 w-full flex flex-col items-center text-center bg-emerald-50/30 p-6 rounded-2xl border border-emerald-100 shadow-inner">
-                   <h3 className="text-lg font-bold text-emerald-900 mb-4 flex items-center gap-2">
-                     <span className="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm">方案 B</span>
+                <div className="lg:w-80 w-full flex flex-col items-center text-center bg-emerald-50/60 p-6 md:p-8 rounded-2xl border border-emerald-200 shadow-inner">
+                   <h3 className="text-xl md:text-2xl font-extrabold text-emerald-900 mb-4 flex items-center gap-2">
+                     <span className="bg-emerald-700 text-white px-4 py-1.5 rounded-full text-base shadow-sm">方案 B</span>
                      一般隨喜贊助
                    </h3>
-                   <div className="flex flex-col items-center gap-3">
-                     <img src="QR code-演藝廳座椅冠名表單.jpg" alt="QR Code" className="w-28 h-28 border border-white rounded-lg shadow-sm bg-white p-1" />
-                     <p className="text-xs text-emerald-700 font-medium">不需指定座位，直接捐款</p>
-                     <button onClick={goToFormDirectly} className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm rounded-xl font-medium w-full shadow-sm transition-colors">直接填寫表單</button>
+                   <div className="flex flex-col items-center gap-4 mt-2">
+                     <img src="QR code-演藝廳座椅冠名表單.jpg" alt="QR Code" className="w-36 h-36 border-2 border-white rounded-xl shadow-md bg-white p-1" />
+                     <p className="text-base font-bold text-emerald-900">不需指定座位，直接捐款</p>
+                     <button onClick={goToFormDirectly} className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white text-lg rounded-xl font-bold w-full shadow-md transition-colors mt-2">
+                       直接填寫表單
+                     </button>
                    </div>
                 </div>
               </div>
             </div>
 
-            {/* 座位圖例 */}
-            <div className="bg-white p-5 rounded-xl shadow-md border border-slate-200 flex flex-wrap gap-8 justify-center mb-10 text-sm font-medium">
-              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-blue-50 border border-blue-200 rounded"></div><span>一般認捐席</span></div>
-              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-blue-600 border border-blue-700 rounded ring-1 ring-blue-300"></div><span className="text-blue-700">您選取的座位</span></div>
-              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-amber-100 border border-amber-400 rounded relative"><IconStar size={10} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" /></div><span>尊榮競標席</span></div>
-              <div className="flex items-center gap-3"><div className="w-6 h-6 bg-slate-200 border border-slate-300 rounded flex items-center justify-center"><IconCheck size={14} className="text-slate-500" /></div><span>已認捐 / 保留</span></div>
+            {/* 座位圖例 - 長輩友善放大版 */}
+            <div className="bg-white p-5 md:p-6 rounded-xl shadow-md border border-slate-200 flex flex-wrap gap-6 md:gap-8 justify-center mb-10 text-base md:text-lg font-bold">
+              <div className="flex items-center gap-3"><div className="w-6 h-6 md:w-8 md:h-8 bg-blue-50 border border-blue-200 rounded"></div><span className="text-slate-800">一般認捐席</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 border border-blue-700 rounded ring-2 ring-blue-300"></div><span className="text-blue-700">您選取的座位</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 md:w-8 md:h-8 bg-amber-100 border border-amber-400 rounded relative"><IconStar size={14} className="absolute -top-1.5 -right-1.5 text-amber-500 fill-amber-500" /></div><span className="text-slate-800">尊榮競標席</span></div>
+              <div className="flex items-center gap-3"><div className="w-6 h-6 md:w-8 md:h-8 bg-slate-200 border border-slate-300 rounded flex items-center justify-center"><IconCheck size={18} className="text-slate-500" /></div><span className="text-slate-800">已認捐 / 保留</span></div>
             </div>
 
             {/* 座位表 */}

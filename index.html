@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>臺中二中藝教大樓演藝廳藝文發展永續基金計劃</title>
+  <title>臺中二中藝教大樓演藝廳藝文發展永續基金計畫</title>
   
   <!-- 引入 React 與 Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -164,14 +164,30 @@
 
       return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
-          <header className="bg-gradient-to-r from-slate-900 via-blue-900 to-teal-900 text-white py-12 px-4 shadow-lg">
-            <div className="max-w-5xl mx-auto text-center">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 tracking-widest drop-shadow-md">臺中二中藝教大樓演藝廳<br className="md:hidden" />藝文發展永續基金計劃</h1>
-              <p className="text-blue-100 max-w-2xl mx-auto leading-relaxed drop-shadow-sm text-xl md:text-2xl font-medium">「鷹揚二中 藝席之地」榮譽冠名方案</p>
+          
+          {/* 網頁文字 + 純圖片標頭區塊 */}
+          <header className="w-full mx-auto pt-12 pb-4 relative flex flex-col items-center text-center overflow-hidden">
+            {/* 放大的文字區塊 */}
+            <div className="relative z-10 px-4">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-[#1e3a8a] tracking-widest drop-shadow-sm mb-4 md:mb-6">
+                臺中二中藝教大樓演藝廳<br className="md:hidden" />藝文發展永續基金計畫
+              </h1>
+              <p className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-700 tracking-wider drop-shadow-sm">
+                「鷹揚二中．藝席之地」榮譽冠名方案
+              </p>
+            </div>
+
+            {/* 縮小的圖案區塊 (利用負邊距讓圖案稍微往上靠近文字) */}
+            <div className="w-full flex justify-center relative z-0 mt-4 md:-mt-4 lg:-mt-8 px-4">
+              <img 
+                src="演藝廳贊助網頁標頭.jpg" 
+                alt="鷹揚二中 視覺圖" 
+                className="w-full max-w-2xl lg:max-w-3xl object-contain opacity-95"
+              />
             </div>
           </header>
 
-          <main className="max-w-6xl mx-auto px-4 mt-10">
+          <main className="max-w-6xl mx-auto px-4 mt-6">
             {/* 參與方式說明 */}
             <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-slate-200 mb-10 w-full max-w-5xl mx-auto">
               <h2 className="text-xl font-bold text-slate-800 mb-8 text-center tracking-wide flex items-center justify-center gap-2">

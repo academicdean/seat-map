@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>臺中二中藝教大樓演藝廳藝文發展永續基金計畫</title>
   
-  <!-- 新增的 OG Tags (Line/Facebook 分享預覽設定) -->
   <meta property="og:title" content="臺中二中藝教大樓演藝廳藝文發展永續基金計畫" />
   <meta property="og:description" content="「鷹揚二中．藝席之地」榮譽冠名方案。邀請您認捐專屬座位，為挹注演藝廳長遠發展與設備維護盡一份心力。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://academicdean.github.io/seat-map/" />
-  <!-- ★ 重要：請將準備好的演藝廳照片命名為 og-image.jpg 並上傳至 GitHub -->
   <meta property="og:image" content="https://academicdean.github.io/seat-map/og-image.jpg" />
   
   <!-- 引入 React 與 Babel -->
@@ -18,13 +16,23 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
+  <!-- ★ 關鍵修復：強制設定 Babel 使用傳統編譯模式，解決載入模組錯誤的問題 -->
+  <script>
+    Babel.registerPreset('react-classic', {
+      presets: [
+        [Babel.availablePresets['react'], { "runtime": "classic" }]
+      ]
+    });
+  </script>
+
   <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
   <div id="root"></div>
 
-  <script type="text/babel">
+  <!-- 注意這裡加入了 data-presets="react-classic" 來套用我們剛才設定的傳統模式 -->
+  <script type="text/babel" data-presets="react-classic">
     const { useState, useMemo, useEffect } = React;
 
     // 定義圖示元件
@@ -42,6 +50,9 @@
     );
     const IconShoppingBag = ({ className, size=24 }) => (
       <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    );
+    const IconAlertCircle = ({ className, size=24 }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     );
     
     // 流程說明專用圖示
@@ -95,7 +106,7 @@
           } catch (error) { console.error('讀取試算表錯誤:', error); }
         };
         fetchData();
-        const intervalId = setInterval(fetchData, 15000);
+        const intervalId = setInterval(fetchData, 15000); // 每 15 秒更新一次
         return () => clearInterval(intervalId);
       }, []);
 
@@ -185,7 +196,7 @@
               </p>
             </div>
 
-            {/* 縮小的圖案區塊 (利用負邊距讓圖案稍微往上靠近文字) */}
+            {/* 縮小的圖案區塊 */}
             <div className="w-full flex justify-center relative z-0 mt-4 md:-mt-4 lg:-mt-8 px-4">
               <img 
                 src="演藝廳贊助網頁標頭.png" 
@@ -297,9 +308,16 @@
                 </div>
                 <div className="p-6">
                   <p className="text-slate-600 mb-4 font-medium">您選取的座位：</p>
-                  <div className="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="flex flex-wrap gap-2 mb-4 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded-lg border border-slate-100">
                     {selectedSeats.map(id => <span key={id} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-bold text-sm border border-blue-200">座位 {id}</span>)}
                   </div>
+                  
+                  {/* 新增的溫馨提醒：時間差免責宣告 */}
+                  <div className="mb-6 bg-red-50 p-3.5 rounded-xl text-red-900 border border-red-200 text-xs md:text-sm leading-relaxed flex items-start gap-2 shadow-sm">
+                    <IconAlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" />
+                    <span><strong>溫馨提醒：</strong>系統座位保留以「表單送出時間」為優先順序。若遇多人同時填寫同一座位，將由專人聯繫您協助調整。</span>
+                  </div>
+
                   <div className="space-y-2 border-t pt-4">
                     <div className="flex justify-between text-lg"><span className="text-slate-500">認捐席次：</span><span className="font-bold text-slate-800">{selectedSeats.length} 席</span></div>
                     <div className="flex justify-between text-xl border-b pb-4"><span className="text-slate-500">認捐總額：</span><span className="font-bold text-blue-700 text-2xl">NT$ {(selectedSeats.length * 20000).toLocaleString()} 元</span></div>
